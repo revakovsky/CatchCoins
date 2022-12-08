@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Catch Coins</string>
+
+    <!--    buttons     -->
+    <string name="start_game">Start Game</string>
+    <string name="best_result">Show best result</string>
+    <string name="Exit">Exit</string>
+    <string name="back">Back</string>
+
 </resources>
