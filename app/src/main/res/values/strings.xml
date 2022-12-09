@@ -1,10 +1,21 @@
 <resources>
     <string name="app_name">Catch Coins</string>
+    <string name="catch_gol_coins">Catch Gold Coins</string>
 
     <!--    buttons     -->
     <string name="start_game">Start Game</string>
     <string name="best_result">Show best result</string>
-    <string name="Exit">Exit</string>
+    <string name="exit">Exit</string>
     <string name="back">Back</string>
+
+    <string name="coin_rain">coin rain</string>
+    <string name="dower_chest">dower chest</string>
+    <string name="red_label">red label</string>
+    <string name="back_button">back button</string>
+    <string name="coin_counter">coin counter</string>
+    <string name="basket">basket</string>
+    <string name="coin">coin</string>
+    <string name="rock">rock</string>
+    <string name="mushroom">mushroom</string>
 
 </resources>

@@ -15,7 +15,7 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMenuBinding.bind(view)
 
-        binding.forwardButton.setOnClickListener {
+        binding.startGameButton.setOnClickListener {
             findNavController().navigate(R.id.action_menuFragment2_to_gameFragment2)
         }
 
