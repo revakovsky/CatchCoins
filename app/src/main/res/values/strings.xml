@@ -17,5 +17,8 @@
     <string name="coin">coin</string>
     <string name="rock">rock</string>
     <string name="mushroom">mushroom</string>
+    <string name="want_to_leave">Do you want to leave the Quiz?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
 </resources>

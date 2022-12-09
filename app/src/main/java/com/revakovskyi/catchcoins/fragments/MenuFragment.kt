@@ -19,6 +19,14 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
             findNavController().navigate(R.id.action_menuFragment2_to_gameFragment2)
         }
 
+        binding.bestResultButton.setOnClickListener {
+            //todo
+        }
+
+        binding.exitButton.setOnClickListener {
+            //todo
+        }
+
     }
 
 }
