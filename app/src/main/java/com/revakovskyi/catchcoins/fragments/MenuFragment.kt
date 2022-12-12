@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.revakovskyi.catchcoins.R
 import com.revakovskyi.catchcoins.databinding.FragmentMenuBinding
+import com.revakovskyi.catchcoins.utils.showExitDialog
 
 class MenuFragment : Fragment(R.layout.fragment_menu) {
 
@@ -24,7 +25,7 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
         }
 
         binding.exitButton.setOnClickListener {
-            //todo
+            showExitDialog()
         }
 
     }
