@@ -4,7 +4,7 @@ object GameMainSettings {
 
     // Time and Speed values
     const val TIME_PRELOAD_GAME: Int = 1
-    const val FALLING_SUBJECTS_SPEED: Int = 40
+    const val FALLING_SUBJECTS_SPEED: Int = 20
     const val FALL_TIME_DELAY: Long = -1
     const val MAX_TIME: Int = 200
 
