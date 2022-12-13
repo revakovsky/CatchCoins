@@ -36,9 +36,7 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
                         onClickPositive = { continueGame() },
                         onClickNegative = { startNewGame() }
                     )
-                } else {
-                    startNewGame()
-                }
+                } else startNewGame()
             }
 
             continueGameButton.setOnClickListener { continueGame() }
@@ -47,11 +45,11 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
 
             exitButton.setOnClickListener {
                 showDialog(
-                    R.drawable.question_icon,
-                    R.string.exit,
-                    R.string.want_to_leave,
-                    { requireActivity().finish() },
-                    { }
+                    icon = R.drawable.question_icon,
+                    dialogTitle = R.string.exit,
+                    dialogMessage = R.string.want_to_leave,
+                    onClickPositive = { requireActivity().finish() },
+                    onClickNegative = { }
                 )
             }
         }
@@ -105,14 +103,14 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
 
     private fun showIntentDialog() {
         showDialog(
-            R.drawable.question_icon,
-            R.string.clear,
-            R.string.are_you_sure,
-            {
+            icon = R.drawable.question_icon,
+            dialogTitle = R.string.clear,
+            dialogMessage = R.string.are_you_sure,
+            onClickPositive = {
                 sharedPrefs?.clearMaxScore()
                 binding?.coinCounter?.text = "0"
             },
-            {}
+            onClickNegative = {}
         )
     }
 

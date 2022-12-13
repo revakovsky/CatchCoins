@@ -37,9 +37,7 @@ class SubjectsItem(
             image.y = rectangle.y
         } else {
             time--
-            if (time < 0) {
-                fall = true
-            }
+            if (time < 0) fall = true
         }
     }
 
