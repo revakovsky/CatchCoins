@@ -1,6 +1,7 @@
 package com.revakovskyi.catchcoins.fragments
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -17,12 +18,14 @@ import com.revakovskyi.catchcoins.models.BasketItem
 import com.revakovskyi.catchcoins.models.Rectangle
 import com.revakovskyi.catchcoins.models.SubjectsItem
 import com.revakovskyi.catchcoins.utils.GameMainSettings
+import com.revakovskyi.catchcoins.utils.SharedPrefs
 import kotlin.random.Random
 
 @Suppress("SpellCheckingInspection")
 class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
 
-    private lateinit var binding: FragmentGameBinding
+    private var binding: FragmentGameBinding? = null
+    private var sharedPrefs: SharedPrefs? = null
 
     private var width = 0f
     private var height = 0f
@@ -38,13 +41,26 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
     private lateinit var basketItem: BasketItem
 
     lateinit var sensorManager: SensorManager
-    lateinit var accelerometer: Sensor
+    private lateinit var accelerometer: Sensor
     private var isSencorExist: Boolean = false
+
+    private var isContinue = false
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentGameBinding.bind(view)
+        sharedPrefs = SharedPrefs(requireActivity())
+
+        isContinue = requireArguments().getBoolean("continue")
+        if (isContinue) {
+            score = sharedPrefs?.getCurrentScore() ?: 0
+            binding?.coinCounter?.text = score.toString()
+        } else {
+            score = 0
+            binding?.coinCounter?.text = score.toString()
+            sharedPrefs?.clearCurrentScore()
+        }
 
         setBackButtonAction()
         getScreenDimensions()
@@ -88,12 +104,46 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
                             removeSubject(subject)
 
                         } else if (score < 0) {
-                            // todo finish part
+                            openGameOverScreen()
                         }
                     }
                 }
                 handler.postDelayed(this, GameMainSettings.FALL_TIME_DELAY)
             }
+        }
+    }
+
+    private fun openGameOverScreen() {
+        binding?.apply {
+            running = false
+            gameOverScreen.visibility = View.VISIBLE
+            basketItem.image.visibility = View.GONE
+            backButton.visibility = View.GONE
+            backText.visibility = View.GONE
+
+            startNewGameButton.setOnClickListener { prepareNewGame() }
+
+            closeGameOverButton.setOnClickListener { closeGameOverScreen() }
+        }
+    }
+
+    private fun closeGameOverScreen() {
+        binding?.apply {
+            gameOverScreen.visibility = View.INVISIBLE
+            findNavController().popBackStack()
+            score = 0
+        }
+    }
+
+    private fun prepareNewGame() {
+        binding?.apply {
+            score = 0
+            coinCounter.text = score.toString()
+            gameOverScreen.visibility = View.INVISIBLE
+            basketItem.image.visibility = View.VISIBLE
+            backButton.visibility = View.VISIBLE
+            backText.visibility = View.VISIBLE
+            running = true
         }
     }
 
@@ -180,7 +230,7 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
         subject: SubjectsItem
     ) {
         val mutableList = listOfSubjects.toMutableList()
-        binding.root.removeView(subject.image)
+        binding?.root?.removeView(subject.image)
         mutableList.remove(subject)
         listOfSubjects = mutableList.toList()
     }
@@ -199,18 +249,35 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
 
     private fun increaseScore() {
         score++
-        binding.coinCounter.text = "$score"
+        binding?.coinCounter?.text = "$score"
     }
 
     private fun decreaseScore() {
         score--
-        binding.coinCounter.text = "$score"
+        binding?.coinCounter?.text = "$score"
     }
 
     private fun setBackButtonAction() {
-        binding.backButton.setOnClickListener {
-            findNavController().popBackStack()
+        binding?.backButton?.setOnClickListener {
+            showExitGameDialog()
         }
+    }
+
+    private fun showExitGameDialog() {
+        running = false
+
+        AlertDialog.Builder(requireContext())
+            .setIcon(R.drawable.question_icon)
+            .setTitle(R.string.exit)
+            .setMessage(R.string.want_to_exit)
+            .setPositiveButton(R.string.yes) { _, _ ->
+                findNavController().popBackStack()
+            }
+            .setNegativeButton(R.string.no) { _, _ ->
+                running = true
+            }
+            .create()
+            .show()
     }
 
     private fun createBasket() {
@@ -221,7 +288,7 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
                 width = width * GameMainSettings.BASKET_WIDTH,
                 height = height * GameMainSettings.BASKET_HEIGHT
             ),
-            parent = binding.root
+            parent = binding!!.root
         )
     }
 
@@ -239,7 +306,7 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
                     width = width * GameMainSettings.SUBJECT_WIDTH,
                     height = width * GameMainSettings.SUBJECT_WIDTH
                 ),
-                parent = binding.root,
+                parent = binding!!.root,
                 index = index
             )
         )
@@ -257,7 +324,17 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
     override fun onStop() {
         super.onStop()
         running = false
+
+        sharedPrefs?.saveMaxScore(score)
+        sharedPrefs?.saveCurrentScore(score)
+
         handler.removeCallbacks(runnable)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        binding = null
+        sharedPrefs = null
     }
 
 }

@@ -15,6 +15,10 @@ class SharedPrefs(context: Context) {
         return shPrefs.getInt(SP_CURRENT_SCORE, 0)
     }
 
+    fun clearCurrentScore() {
+        shPrefs.edit { remove(SP_CURRENT_SCORE) }
+    }
+
     fun saveMaxScore(score: Int) {
         val maxScore = getMaxScore()
 

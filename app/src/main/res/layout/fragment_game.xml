@@ -20,6 +20,7 @@
             android:src="@drawable/arrrow_button" />
 
         <TextView
+            android:id="@+id/back_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="45dp"
@@ -47,7 +48,7 @@
             android:fontFamily="@font/irish_grover"
             android:shadowColor="@color/main"
             android:shadowRadius="10"
-            android:text="1"
+            android:text="0"
             android:textColor="#FAA03A"
             android:textSize="30sp" />
 
@@ -62,5 +63,67 @@
             android:src="@drawable/coin_counter" />
 
     </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/game_over_screen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="50dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/max_score_dashboard"
+            android:src="@drawable/game_over" />
+
+        <TextView
+            android:id="@+id/max_score_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center"
+            android:layout_marginTop="25dp"
+            android:fontFamily="@font/irish_grover"
+            android:shadowColor="@color/main"
+            android:shadowRadius="10"
+            android:text="@string/game_over"
+            android:textColor="@color/white"
+            android:textSize="40sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center"
+            android:layout_marginTop="110dp"
+            android:fontFamily="@font/irish_grover"
+            android:shadowColor="@color/main"
+            android:shadowRadius="10"
+            android:text="@string/you_lose_your_coins"
+            android:textAlignment="center"
+            android:textColor="#FAA03A"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/start_new_game_button"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="15dp"
+            android:background="@drawable/button"
+            android:fontFamily="@font/irish_grover"
+            android:text="@string/start_new_game"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/close_game_over_button"
+            android:layout_width="100dp"
+            android:layout_height="80dp"
+            android:layout_gravity="bottom|center"
+            android:contentDescription="@string/close_button"
+            android:src="@drawable/close_button" />
+
+    </FrameLayout>
 
 </FrameLayout>

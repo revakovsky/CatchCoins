@@ -57,15 +57,30 @@
         android:id="@+id/start_game_button"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="130dp"
         android:background="@drawable/button"
         android:fontFamily="@font/irish_grover"
         android:text="@string/start_game"
         android:textColor="@color/white"
         android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/game_title"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/continue_game_button"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/button"
+
+        android:fontFamily="@font/irish_grover"
+        android:text="@string/continue_game"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="@id/start_game_button"
+        app:layout_constraintStart_toStartOf="@+id/start_game_button"
+        app:layout_constraintTop_toBottomOf="@id/start_game_button" />
 
     <Button
         android:id="@+id/best_result_button"
@@ -79,7 +94,7 @@
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="@id/start_game_button"
         app:layout_constraintStart_toStartOf="@+id/start_game_button"
-        app:layout_constraintTop_toBottomOf="@id/start_game_button" />
+        app:layout_constraintTop_toBottomOf="@id/continue_game_button" />
 
     <Button
         android:id="@+id/exit_button"

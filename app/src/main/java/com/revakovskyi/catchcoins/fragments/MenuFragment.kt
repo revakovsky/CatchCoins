@@ -3,6 +3,7 @@ package com.revakovskyi.catchcoins.fragments
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.revakovskyi.catchcoins.R
@@ -20,8 +21,43 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
         binding = FragmentMenuBinding.bind(view)
         sharedPrefs = SharedPrefs(requireActivity())
 
+        val currentScore = sharedPrefs?.getCurrentScore()
+        if (currentScore == 0) binding?.continueGameButton?.visibility = View.GONE
+
         binding?.startGameButton?.setOnClickListener {
-            findNavController().navigate(R.id.action_menuFragment2_to_gameFragment2)
+
+            if (currentScore != 0) {
+                AlertDialog.Builder(requireContext())
+                    .setIcon(R.drawable.question_icon)
+                    .setTitle(R.string.continue_game)
+                    .setMessage(R.string.progress_status)
+                    .setPositiveButton(R.string.yes) { _, _ ->
+                        findNavController().navigate(
+                            R.id.action_menuFragment2_to_gameFragment2,
+                            bundleOf("continue" to true)
+                        )
+                    }
+                    .setNegativeButton(R.string.no) { _, _ ->
+                        findNavController().navigate(
+                            R.id.action_menuFragment2_to_gameFragment2,
+                            bundleOf("continue" to false)
+                        )
+                    }
+                    .create()
+                    .show()
+            } else {
+                findNavController().navigate(
+                    R.id.action_menuFragment2_to_gameFragment2,
+                    bundleOf("continue" to false)
+                )
+            }
+        }
+
+        binding?.continueGameButton?.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_menuFragment2_to_gameFragment2,
+                bundleOf("continue" to true)
+            )
         }
 
         binding?.bestResultButton?.setOnClickListener {
@@ -54,6 +90,7 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
             coinRainImage.visibility = visibilityValue
             imageView.visibility = visibilityValue
             gameTitle.visibility = visibilityValue
+            continueGameButton.visibility = visibilityValue
             startGameButton.visibility = visibilityValue
             bestResultButton.visibility = visibilityValue
             exitButton.visibility = visibilityValue
@@ -72,6 +109,7 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
             .setMessage(R.string.are_you_sure)
             .setPositiveButton(R.string.yes) { _, _ ->
                 sharedPrefs?.clearMaxScore()
+                binding?.coinCounter?.text = "0"
             }
             .setNegativeButton(R.string.no, null)
             .create()
