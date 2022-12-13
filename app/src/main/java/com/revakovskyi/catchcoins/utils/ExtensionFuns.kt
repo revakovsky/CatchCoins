@@ -4,15 +4,23 @@ import android.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.revakovskyi.catchcoins.R
 
-fun Fragment.showExitDialog() {
+fun Fragment.showDialog(
+    icon: Int,
+    dialogTitle: Int,
+    dialogMessage: Int,
+    onClickPositive: () -> Unit,
+    onClickNegative: () -> Unit
+) {
     AlertDialog.Builder(requireContext())
-        .setIcon(R.drawable.cancel)
-        .setTitle(R.string.exit)
-        .setMessage(R.string.want_to_leave)
+        .setIcon(icon)
+        .setTitle(dialogTitle)
+        .setMessage(dialogMessage)
         .setPositiveButton(R.string.yes) { _, _ ->
-            requireActivity().finish()
+            onClickPositive()
         }
-        .setNegativeButton(R.string.no, null)
+        .setNegativeButton(R.string.no) { _, _ ->
+            onClickNegative()
+        }
         .create()
         .show()
 }

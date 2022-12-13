@@ -1,6 +1,5 @@
 package com.revakovskyi.catchcoins.fragments
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
@@ -8,8 +7,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.revakovskyi.catchcoins.R
 import com.revakovskyi.catchcoins.databinding.FragmentMenuBinding
+import com.revakovskyi.catchcoins.utils.GameMainSettings
 import com.revakovskyi.catchcoins.utils.SharedPrefs
-import com.revakovskyi.catchcoins.utils.showExitDialog
+import com.revakovskyi.catchcoins.utils.showDialog
 
 class MenuFragment : Fragment(R.layout.fragment_menu) {
 
@@ -18,56 +18,61 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         binding = FragmentMenuBinding.bind(view)
         sharedPrefs = SharedPrefs(requireActivity())
 
         val currentScore = sharedPrefs?.getCurrentScore()
-        if (currentScore == 0) binding?.continueGameButton?.visibility = View.GONE
+        if (currentScore == 0) setContinueButtonVisibility()
 
-        binding?.startGameButton?.setOnClickListener {
+        binding?.apply {
 
-            if (currentScore != 0) {
-                AlertDialog.Builder(requireContext())
-                    .setIcon(R.drawable.question_icon)
-                    .setTitle(R.string.continue_game)
-                    .setMessage(R.string.progress_status)
-                    .setPositiveButton(R.string.yes) { _, _ ->
-                        findNavController().navigate(
-                            R.id.action_menuFragment2_to_gameFragment2,
-                            bundleOf("continue" to true)
-                        )
-                    }
-                    .setNegativeButton(R.string.no) { _, _ ->
-                        findNavController().navigate(
-                            R.id.action_menuFragment2_to_gameFragment2,
-                            bundleOf("continue" to false)
-                        )
-                    }
-                    .create()
-                    .show()
-            } else {
-                findNavController().navigate(
-                    R.id.action_menuFragment2_to_gameFragment2,
-                    bundleOf("continue" to false)
+            startGameButton.setOnClickListener {
+                if (currentScore != 0) {
+                    showDialog(
+                        icon = R.drawable.question_icon,
+                        dialogTitle = R.string.continue_game,
+                        dialogMessage = R.string.progress_status,
+                        onClickPositive = { continueGame() },
+                        onClickNegative = { startNewGame() }
+                    )
+                } else {
+                    startNewGame()
+                }
+            }
+
+            continueGameButton.setOnClickListener { continueGame() }
+
+            bestResultButton.setOnClickListener { openDashboard() }
+
+            exitButton.setOnClickListener {
+                showDialog(
+                    R.drawable.question_icon,
+                    R.string.exit,
+                    R.string.want_to_leave,
+                    { requireActivity().finish() },
+                    { }
                 )
             }
         }
+    }
 
-        binding?.continueGameButton?.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_menuFragment2_to_gameFragment2,
-                bundleOf("continue" to true)
-            )
-        }
+    private fun startNewGame() {
+        findNavController().navigate(
+            resId = R.id.action_menuFragment2_to_gameFragment2,
+            args = bundleOf(GameMainSettings.CONTINUE_BUNDLE_KEY to false)
+        )
+    }
 
-        binding?.bestResultButton?.setOnClickListener {
-            openDashboard()
-        }
+    private fun continueGame() {
+        findNavController().navigate(
+            resId = R.id.action_menuFragment2_to_gameFragment2,
+            args = bundleOf(GameMainSettings.CONTINUE_BUNDLE_KEY to true)
+        )
+    }
 
-        binding?.exitButton?.setOnClickListener {
-            showExitDialog()
-        }
-
+    private fun setContinueButtonVisibility() {
+        binding?.continueGameButton?.visibility = View.GONE
     }
 
     private fun openDashboard() {
@@ -75,12 +80,8 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
 
         binding?.apply {
             coinCounter.text = sharedPrefs?.getMaxScore().toString()
-            clearButton.setOnClickListener {
-                showIntentDialog()
-            }
-            closeDashboardButton.setOnClickListener {
-                changeMenuVisibility(View.VISIBLE)
-            }
+            clearButton.setOnClickListener { showIntentDialog() }
+            closeDashboardButton.setOnClickListener { changeMenuVisibility(View.VISIBLE) }
         }
     }
 
@@ -103,17 +104,16 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
     }
 
     private fun showIntentDialog() {
-        AlertDialog.Builder(requireContext())
-            .setIcon(R.drawable.question_icon)
-            .setTitle(R.string.clear)
-            .setMessage(R.string.are_you_sure)
-            .setPositiveButton(R.string.yes) { _, _ ->
+        showDialog(
+            R.drawable.question_icon,
+            R.string.clear,
+            R.string.are_you_sure,
+            {
                 sharedPrefs?.clearMaxScore()
                 binding?.coinCounter?.text = "0"
-            }
-            .setNegativeButton(R.string.no, null)
-            .create()
-            .show()
+            },
+            {}
+        )
     }
 
     override fun onDetach() {

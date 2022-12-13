@@ -31,7 +31,7 @@ class SubjectsItem(
         parent.addView(image)
     }
 
-    fun startFalling(speed: Int) {
+    fun fall(speed: Int) {
         if (fall) {
             rectangle.y += speed
             image.y = rectangle.y
@@ -42,7 +42,6 @@ class SubjectsItem(
             }
         }
     }
-
 
     companion object {
         val listOfSubjectsIcons = listOf(

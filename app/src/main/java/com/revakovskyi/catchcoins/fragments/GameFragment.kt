@@ -1,7 +1,6 @@
 package com.revakovskyi.catchcoins.fragments
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -19,9 +18,9 @@ import com.revakovskyi.catchcoins.models.Rectangle
 import com.revakovskyi.catchcoins.models.SubjectsItem
 import com.revakovskyi.catchcoins.utils.GameMainSettings
 import com.revakovskyi.catchcoins.utils.SharedPrefs
+import com.revakovskyi.catchcoins.utils.showDialog
 import kotlin.random.Random
 
-@Suppress("SpellCheckingInspection")
 class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
 
     private var binding: FragmentGameBinding? = null
@@ -33,6 +32,7 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
     private lateinit var handler: Handler
     private lateinit var runnable: Runnable
 
+    private var isContinue = false
     private var time = 0
     private var score = 0
     private var running = true
@@ -42,33 +42,20 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
 
     lateinit var sensorManager: SensorManager
     private lateinit var accelerometer: Sensor
-    private var isSencorExist: Boolean = false
-
-    private var isContinue = false
+    private var isSensorExist: Boolean = false
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         binding = FragmentGameBinding.bind(view)
         sharedPrefs = SharedPrefs(requireActivity())
 
-        isContinue = requireArguments().getBoolean("continue")
-        if (isContinue) {
-            score = sharedPrefs?.getCurrentScore() ?: 0
-            binding?.coinCounter?.text = score.toString()
-        } else {
-            score = 0
-            binding?.coinCounter?.text = score.toString()
-            sharedPrefs?.clearCurrentScore()
-        }
-
+        checkIsContinue()
         setBackButtonAction()
         getScreenDimensions()
-
-        createBasket()
-        createSubject()
-
         initSensorManager()
+        createBasket()
 
         @Suppress("DEPRECATION")
         handler = Handler()
@@ -78,9 +65,7 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
             override fun run() {
                 if (running) {
                     time++
-
-                    // TODO WHAT THE TIME IS THIS?
-                    if (time >= GameMainSettings.MAX_TIME) {
+                    if (time >= GameMainSettings.TIME_BETWEEN_CREATING_SUBJECTS) {
                         time = 0
                         createSubject()
                     }
@@ -90,62 +75,60 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
                     while (iterator.hasNext()) {
                         val subject: SubjectsItem = (iterator.next() as SubjectsItem?)!!
 
-                        subject.startFalling(speed = GameMainSettings.FALLING_SUBJECTS_SPEED)
+                        subject.fall(speed = GameMainSettings.FALLING_SUBJECTS_SPEED)
 
-                        if (isKoinOverlapsBasket(subject)) {
+                        if (subject.rectangle.overlaps(basketItem.rectangle) && subject.index == 0) {
                             increaseScore()
                             removeSubject(subject)
-
-                        } else if (isRockOverlapsBasket(subject)) {
+                        }
+                        if (subject.rectangle.overlaps(basketItem.rectangle) && subject.index != 0) {
                             decreaseScore()
                             removeSubject(subject)
-
-                        } else if (isSubjectFeltDown(subject)) {
+                        }
+                        if (isSubjectFeltDown(subject)) {
                             removeSubject(subject)
-
-                        } else if (score < 0) {
+                        }
+                        if (score < 0) {
                             openGameOverScreen()
                         }
                     }
                 }
-                handler.postDelayed(this, GameMainSettings.FALL_TIME_DELAY)
+                handler.postDelayed(this, GameMainSettings.FRAME_RATE)
             }
         }
     }
 
-    private fun openGameOverScreen() {
-        binding?.apply {
+    private fun checkIsContinue() {
+        isContinue = requireArguments().getBoolean(GameMainSettings.CONTINUE_BUNDLE_KEY)
+        if (isContinue) {
+            score = sharedPrefs?.getCurrentScore() ?: 0
+            binding?.coinCounter?.text = score.toString()
+        } else {
+            score = 0
+            binding?.coinCounter?.text = score.toString()
+            sharedPrefs?.clearCurrentScore()
+        }
+    }
+
+    private fun setBackButtonAction() {
+        binding?.backButton?.setOnClickListener {
             running = false
-            gameOverScreen.visibility = View.VISIBLE
-            basketItem.image.visibility = View.GONE
-            backButton.visibility = View.GONE
-            backText.visibility = View.GONE
 
-            startNewGameButton.setOnClickListener { prepareNewGame() }
-
-            closeGameOverButton.setOnClickListener { closeGameOverScreen() }
+            showDialog(
+                R.drawable.question_icon,
+                R.string.exit,
+                R.string.want_to_exit,
+                { findNavController().popBackStack() },
+                { running = true }
+            )
         }
     }
 
-    private fun closeGameOverScreen() {
-        binding?.apply {
-            gameOverScreen.visibility = View.INVISIBLE
-            findNavController().popBackStack()
-            score = 0
-        }
+    private fun getScreenDimensions() {
+        width = resources.displayMetrics.widthPixels.toFloat()
+        height = resources.displayMetrics.heightPixels.toFloat()
     }
 
-    private fun prepareNewGame() {
-        binding?.apply {
-            score = 0
-            coinCounter.text = score.toString()
-            gameOverScreen.visibility = View.INVISIBLE
-            basketItem.image.visibility = View.VISIBLE
-            backButton.visibility = View.VISIBLE
-            backText.visibility = View.VISIBLE
-            running = true
-        }
-    }
 
     private fun initSensorManager() {
         sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -153,7 +136,7 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
 
         if (accelerometersList.isNotEmpty()) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-            isSencorExist = true
+            isSensorExist = true
         }
     }
 
@@ -191,94 +174,49 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
         }
     }
 
-    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
-        return
-    }
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) { return }
 
-    override fun onStart() {
-        super.onStart()
 
-        // todo Ask what is it for?
-        val iterator: Iterator<*> = listOfSubjects.iterator()
-        while (iterator.hasNext()) {
-            val element: SubjectsItem = (iterator.next() as SubjectsItem?)!!
-            removeSubject(element)
-        }
-        running = true
-        handler.post(runnable)
-    }
+    private fun openGameOverScreen() {
+        binding?.apply {
+            running = false
+            changeGameVisibility(View.GONE)
 
-    override fun onResume() {
-        super.onResume()
-
-        if (isSencorExist) {
-            sensorManager.registerListener(
-                this,
-                accelerometer,
-                SensorManager.SENSOR_DELAY_FASTEST,
-                SensorManager.SENSOR_DELAY_FASTEST
-            )
+            startNewGameButton.setOnClickListener { prepareNewGame() }
+            closeGameOverButton.setOnClickListener { closeGameOverScreen() }
         }
     }
 
-    private fun getScreenDimensions() {
-        width = resources.displayMetrics.widthPixels.toFloat()
-        height = resources.displayMetrics.heightPixels.toFloat()
-    }
-
-    private fun removeSubject(
-        subject: SubjectsItem
-    ) {
-        val mutableList = listOfSubjects.toMutableList()
-        binding?.root?.removeView(subject.image)
-        mutableList.remove(subject)
-        listOfSubjects = mutableList.toList()
-    }
-
-    private fun isKoinOverlapsBasket(subject: SubjectsItem): Boolean =
-        subject.rectangle.overlaps(basketItem.rectangle) && subject.index == 0
-
-    private fun isRockOverlapsBasket(subject: SubjectsItem): Boolean =
-        subject.rectangle.overlaps(basketItem.rectangle) && subject.index != 0
-
-    private fun isSubjectFeltDown(subject: SubjectsItem): Boolean {
-        val subjectBottomLine = subject.rectangle.y + subject.rectangle.height
-        val screenBottomLine = height * GameMainSettings.VALUE_OF_PIXELS_BELOW_SCREEN
-        return subjectBottomLine > screenBottomLine
-    }
-
-    private fun increaseScore() {
-        score++
-        binding?.coinCounter?.text = "$score"
-    }
-
-    private fun decreaseScore() {
-        score--
-        binding?.coinCounter?.text = "$score"
-    }
-
-    private fun setBackButtonAction() {
-        binding?.backButton?.setOnClickListener {
-            showExitGameDialog()
+    private fun closeGameOverScreen() {
+        binding?.apply {
+            gameOverScreen.visibility = View.INVISIBLE
+            findNavController().popBackStack()
+            score = 0
         }
     }
 
-    private fun showExitGameDialog() {
-        running = false
+    private fun prepareNewGame() {
+        binding?.apply {
+            score = 0
+            coinCounter.text = score.toString()
+            changeGameVisibility(View.VISIBLE)
+            running = true
+        }
+    }
 
-        AlertDialog.Builder(requireContext())
-            .setIcon(R.drawable.question_icon)
-            .setTitle(R.string.exit)
-            .setMessage(R.string.want_to_exit)
-            .setPositiveButton(R.string.yes) { _, _ ->
-                findNavController().popBackStack()
+    private fun changeGameVisibility(visibilityValue: Int) {
+        binding?.apply {
+            basketItem.image.visibility = visibilityValue
+            backButton.visibility = visibilityValue
+            backText.visibility = visibilityValue
+
+            when (visibilityValue) {
+                View.GONE -> gameOverScreen.visibility = View.VISIBLE
+                View.VISIBLE -> gameOverScreen.visibility = View.GONE
             }
-            .setNegativeButton(R.string.no) { _, _ ->
-                running = true
-            }
-            .create()
-            .show()
+        }
     }
+
 
     private fun createBasket() {
         basketItem = BasketItem(
@@ -313,21 +251,69 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
         listOfSubjects = mutableList.toList()
     }
 
+
+    private fun increaseScore() {
+        score++
+        binding?.coinCounter?.text = "$score"
+    }
+
+    private fun decreaseScore() {
+        score--
+        binding?.coinCounter?.text = "$score"
+    }
+
+    private fun removeSubject(
+        subject: SubjectsItem
+    ) {
+        val mutableList = listOfSubjects.toMutableList()
+        binding?.root?.removeView(subject.image)
+        mutableList.remove(subject)
+        listOfSubjects = mutableList.toList()
+    }
+
+    private fun isSubjectFeltDown(subject: SubjectsItem): Boolean {
+        val subjectBottomLine = subject.rectangle.y + subject.rectangle.height
+        val screenBottomLine = height * GameMainSettings.VALUE_OF_PIXELS_BELOW_SCREEN
+        return subjectBottomLine > screenBottomLine
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        if (isSensorExist) {
+            sensorManager.registerListener(
+                this,
+                accelerometer,
+                SensorManager.SENSOR_DELAY_GAME
+            )
+        }
+    }
+
     override fun onPause() {
         super.onPause()
-
-        if (isSencorExist) {
+        if (isSensorExist) {
             sensorManager.unregisterListener(this)
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        running = true
+        val iterator: Iterator<*> = listOfSubjects.iterator()
+        while (iterator.hasNext()) {
+            val element: SubjectsItem = (iterator.next() as SubjectsItem?)!!
+            removeSubject(element)
+        }
+        handler.post(runnable)
+    }
+
     override fun onStop() {
         super.onStop()
-        running = false
 
+        running = false
         sharedPrefs?.saveMaxScore(score)
         sharedPrefs?.saveCurrentScore(score)
-
         handler.removeCallbacks(runnable)
     }
 

@@ -4,9 +4,9 @@ object GameMainSettings {
 
     // Time and Speed values
     const val TIME_PRELOAD_GAME: Int = 1
-    const val FALLING_SUBJECTS_SPEED: Int = 20
-    const val FALL_TIME_DELAY: Long = -1
-    const val MAX_TIME: Int = 200
+    const val FALLING_SUBJECTS_SPEED: Int = 8
+    const val FRAME_RATE: Long = 16                         // 1000msec / 60frame
+    const val TIME_BETWEEN_CREATING_SUBJECTS: Int = 120     // 1sec = 60
 
     // Screen dimension values
     const val VALUE_OF_PIXELS_BELOW_SCREEN: Float = 1.01f
@@ -22,5 +22,8 @@ object GameMainSettings {
     const val SCREEN_OFFSET_RIGHT: Float = 0.84f
     const val SUBJECT_WIDTH: Float = 0.05f
     const val SUBJECT_INITIAL_POS: Float = -0.1f
+
+    // Constants
+    const val CONTINUE_BUNDLE_KEY = "continue"
 
 }
