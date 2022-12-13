@@ -7,6 +7,7 @@
     <string name="best_result">Show best result</string>
     <string name="exit">Exit</string>
     <string name="back">Back</string>
+    <string name="are_you_sure">Are you sure you want to clear the game max score?</string>
 
     <string name="coin_rain">coin rain</string>
     <string name="dower_chest">dower chest</string>
@@ -20,5 +21,9 @@
     <string name="want_to_leave">Do you want to leave the Guiz?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="max_score_dashboard">max score dashboard</string>
+    <string name="max_score">Max Score</string>
+    <string name="clear">Clear Results</string>
+    <string name="close_button">close_button</string>
 
 </resources>
