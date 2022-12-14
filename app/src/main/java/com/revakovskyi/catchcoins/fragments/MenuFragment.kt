@@ -16,19 +16,21 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
     private var binding: FragmentMenuBinding? = null
     private var sharedPrefs: SharedPrefs? = null
 
+    private var currentScore: Int = 0
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding = FragmentMenuBinding.bind(view)
         sharedPrefs = SharedPrefs(requireActivity())
 
-        val currentScore = sharedPrefs?.getCurrentScore()
-        if (currentScore == 0) setContinueButtonVisibility()
+        currentScore = sharedPrefs!!.getCurrentScore()
+        if (currentScore == 0 || currentScore == -1) setContinueButtonGone()
 
         binding?.apply {
 
             startGameButton.setOnClickListener {
-                if (currentScore != 0) {
+                if (currentScore != 0 && currentScore != -1) {
                     showDialog(
                         icon = R.drawable.question_icon,
                         dialogTitle = R.string.continue_game,
@@ -69,7 +71,7 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
         )
     }
 
-    private fun setContinueButtonVisibility() {
+    private fun setContinueButtonGone() {
         binding?.continueGameButton?.visibility = View.GONE
     }
 
@@ -89,7 +91,7 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
             coinRainImage.visibility = visibilityValue
             imageView.visibility = visibilityValue
             gameTitle.visibility = visibilityValue
-            continueGameButton.visibility = visibilityValue
+            if (currentScore != 0) continueGameButton.visibility = visibilityValue
             startGameButton.visibility = visibilityValue
             bestResultButton.visibility = visibilityValue
             exitButton.visibility = visibilityValue
@@ -112,6 +114,14 @@ class MenuFragment : Fragment(R.layout.fragment_menu) {
             },
             onClickNegative = {}
         )
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (currentScore == 0 || currentScore == -1) {
+            setContinueButtonGone()
+            sharedPrefs?.clearCurrentScore()
+        }
     }
 
     override fun onDetach() {

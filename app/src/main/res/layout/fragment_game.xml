@@ -15,9 +15,10 @@
             android:layout_width="120dp"
             android:layout_height="70dp"
             android:layout_marginTop="20dp"
-            android:contentDescription="@string/back_button"
+            android:contentDescription="@string/back_icon"
             android:scaleType="fitCenter"
-            android:src="@drawable/arrrow_button" />
+            android:src="@drawable/arrrow_button"
+            tools:ignore="ImageContrastCheck" />
 
         <TextView
             android:id="@+id/back_text"
@@ -48,7 +49,7 @@
             android:fontFamily="@font/irish_grover"
             android:shadowColor="@color/main"
             android:shadowRadius="10"
-            android:text="0"
+            android:text="@string/plug"
             android:textColor="#FAA03A"
             android:textSize="30sp" />
 

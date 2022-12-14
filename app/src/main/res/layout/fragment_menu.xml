@@ -168,7 +168,7 @@
                 android:fontFamily="@font/irish_grover"
                 android:shadowColor="@color/main"
                 android:shadowRadius="10"
-                android:text="1"
+                android:text="@string/plug"
                 android:textColor="#FAA03A"
                 android:textSize="30sp" />
 

@@ -174,7 +174,9 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
         }
     }
 
-    override fun onAccuracyChanged(p0: Sensor?, p1: Int) { return }
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+        return
+    }
 
 
     private fun openGameOverScreen() {
@@ -311,6 +313,7 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
     override fun onStop() {
         super.onStop()
 
+        if (score == -1) score = 0
         running = false
         sharedPrefs?.saveMaxScore(score)
         sharedPrefs?.saveCurrentScore(score)

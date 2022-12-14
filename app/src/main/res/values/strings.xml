@@ -24,7 +24,7 @@
     <string name="coin_rain">coin rain</string>
     <string name="dower_chest">dower chest</string>
     <string name="red_label">red label</string>
-    <string name="back_button">back button</string>
+    <string name="back_icon">back icon</string>
     <string name="coin_counter">coin counter</string>
     <string name="basket">basket</string>
     <string name="coin">coin</string>
@@ -33,5 +33,6 @@
     <string name="max_score">Max Score</string>
     <string name="game_over">Game Over</string>
     <string name="you_lose_your_coins">You lose your coins</string>
+    <string name="plug">plug</string>
 
 </resources>
